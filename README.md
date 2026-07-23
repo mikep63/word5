@@ -5,12 +5,13 @@ puzzles. Enter your guesses, mark each letter with the clue color the game
 gave you, and Word5 filters a curated answer list down to every word that
 still fits — with suggestions for a strong next guess.
 
-**Live site:** https://mikep63.github.io/word5/
+**Live site:** <https://mikep63.github.io/word5/>
 
 ## How to use
 
-1. Type a guess into a row of the grid (letters advance automatically;
-   Backspace deletes, arrow keys move around).
+1. Type a guess into a row of the grid, or tap the on-screen keyboard
+   (letters advance automatically; Backspace deletes, arrow keys move
+   around).
 2. Click each tile (or press Space/Enter on it) to cycle its clue color:
    - **Slate** — letter not in the word
    - **Amber** — letter in the word, wrong spot
@@ -42,7 +43,7 @@ There is no build process. Clone the repo, open `index.html` in a
 browser, and edit:
 
 | File | Purpose |
-|---|---|
+| --- | --- |
 | `index.html` | Page structure |
 | `style.css` | Styling (deliberately not the Wordle palette) |
 | `words.js` | The curated answer list (`WORDS` array) |

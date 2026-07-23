@@ -9,6 +9,7 @@ const STATES = ["", "absent", "present", "correct"];
 const MAX_SHOWN = 500;
 
 const board = document.getElementById("board");
+const keyboardEl = document.getElementById("keyboard");
 const countHeading = document.getElementById("count-heading");
 const suggestionsWrap = document.getElementById("suggestions-wrap");
 const suggestionsEl = document.getElementById("suggestions");
@@ -47,6 +48,44 @@ function tileAt(r, c) {
 
 // ---------- input handling ----------
 
+// The active tile is tracked separately from DOM focus so the on-screen
+// keyboard (whose taps would otherwise steal focus) knows where to type.
+let activeTile = null;
+
+function setActive(tile) {
+  if (!tile || tile === activeTile) return;
+  if (activeTile) activeTile.classList.remove("active");
+  activeTile = tile;
+  tile.classList.add("active");
+}
+
+function typeLetter(letter) {
+  if (!activeTile) return;
+  setLetter(activeTile, letter);
+  activeTile.classList.remove("absent", "present", "correct");
+  activeTile.dataset.state = "";
+  const r = +activeTile.dataset.row;
+  const c = +activeTile.dataset.col;
+  setActive(tileAt(r, c + 1) || activeTile);
+  update();
+}
+
+function typeBackspace() {
+  if (!activeTile) return;
+  if (activeTile.textContent) {
+    setLetter(activeTile, "");
+  } else {
+    const r = +activeTile.dataset.row;
+    const c = +activeTile.dataset.col;
+    const prev = tileAt(r, c - 1);
+    if (prev) {
+      setLetter(prev, "");
+      setActive(prev);
+    }
+  }
+  update();
+}
+
 function setLetter(tile, letter) {
   tile.textContent = letter;
   if (!letter) {
@@ -63,10 +102,16 @@ function cycleState(tile) {
   if (tile.dataset.state) tile.classList.add(tile.dataset.state);
 }
 
+board.addEventListener("focusin", (e) => {
+  const tile = e.target.closest(".tile");
+  if (tile) setActive(tile);
+});
+
 board.addEventListener("click", (e) => {
   const tile = e.target.closest(".tile");
   if (!tile) return;
   tile.focus();
+  setActive(tile);
   if (tile.textContent) {
     cycleState(tile);
     update();
@@ -76,27 +121,17 @@ board.addEventListener("click", (e) => {
 board.addEventListener("keydown", (e) => {
   const tile = e.target.closest(".tile");
   if (!tile) return;
+  setActive(tile);
   const r = +tile.dataset.row;
   const c = +tile.dataset.col;
 
   if (/^[a-zA-Z]$/.test(e.key)) {
-    setLetter(tile, e.key.toLowerCase());
-    tile.classList.remove("absent", "present", "correct");
-    tile.dataset.state = "";
-    (tileAt(r, c + 1) || tile).focus();
-    update();
+    typeLetter(e.key.toLowerCase());
+    activeTile.focus();
     e.preventDefault();
   } else if (e.key === "Backspace") {
-    if (tile.textContent) {
-      setLetter(tile, "");
-    } else {
-      const prev = tileAt(r, c - 1);
-      if (prev) {
-        setLetter(prev, "");
-        prev.focus();
-      }
-    }
-    update();
+    typeBackspace();
+    activeTile.focus();
     e.preventDefault();
   } else if (e.key === " " || e.key === "Enter") {
     if (tile.textContent) {
@@ -123,8 +158,39 @@ resetBtn.addEventListener("click", () => {
   for (const row of tiles) {
     for (const tile of row) setLetter(tile, "");
   }
+  setActive(tiles[0][0]);
   tiles[0][0].focus();
   update();
+});
+
+// ---------- on-screen keyboard ----------
+
+function buildKeyboard() {
+  const layout = ["qwertyuiop", "asdfghjkl", "zxcvbnm⌫"];
+  for (const rowKeys of layout) {
+    const row = document.createElement("div");
+    row.className = "kb-row";
+    for (const ch of rowKeys) {
+      const key = document.createElement("button");
+      key.type = "button";
+      key.className = "kb-key" + (ch === "⌫" ? " kb-wide" : "");
+      key.textContent = ch;
+      key.dataset.key = ch;
+      key.setAttribute("aria-label", ch === "⌫" ? "Backspace" : ch.toUpperCase());
+      row.appendChild(key);
+    }
+    keyboardEl.appendChild(row);
+  }
+}
+
+// pointerdown + preventDefault so taps don't steal focus from the board
+// (and don't summon the OS keyboard on mobile).
+keyboardEl.addEventListener("pointerdown", (e) => {
+  const key = e.target.closest(".kb-key");
+  if (!key) return;
+  e.preventDefault();
+  if (key.dataset.key === "⌫") typeBackspace();
+  else typeLetter(key.dataset.key);
 });
 
 // ---------- scoring & filtering ----------
@@ -264,5 +330,7 @@ function update() {
 }
 
 buildBoard();
+buildKeyboard();
+setActive(tiles[0][0]);
 tiles[0][0].focus();
 update();

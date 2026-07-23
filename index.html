@@ -16,13 +16,16 @@
   <main>
     <section class="board-panel">
       <p class="instructions">
-        Type your guess into a row, then click each tile to cycle its clue color:
+        Type your guess into a row (or tap the on-screen keys), then click each
+        tile to cycle its clue color:
         <span class="key key-absent">not in word</span>
         <span class="key key-present">wrong spot</span>
         <span class="key key-correct">correct spot</span>
       </p>
 
       <div id="board" class="board" aria-label="Guess grid"></div>
+
+      <div id="keyboard" class="keyboard" aria-label="On-screen keyboard"></div>
 
       <div class="controls">
         <button id="reset-btn" type="button">Reset board</button>
