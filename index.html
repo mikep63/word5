@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word5 — Five-Letter Word Solver</title>
+  <meta name="description" content="Word5 is a free helper for Wordle-style five-letter word puzzles. Enter your guesses and clue colors to see every possible remaining answer.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Word5</h1>
+    <p class="tagline">A solver for Wordle-style five-letter puzzles</p>
+  </header>
+
+  <main>
+    <section class="board-panel">
+      <p class="instructions">
+        Type your guess into a row, then click each tile to cycle its clue color:
+        <span class="key key-absent">not in word</span>
+        <span class="key key-present">wrong spot</span>
+        <span class="key key-correct">correct spot</span>
+      </p>
+
+      <div id="board" class="board" aria-label="Guess grid"></div>
+
+      <div class="controls">
+        <button id="reset-btn" type="button">Reset board</button>
+      </div>
+    </section>
+
+    <section class="results-panel">
+      <h2 id="count-heading">2,315 possible words</h2>
+
+      <div id="suggestions-wrap" class="suggestions-wrap" hidden>
+        <h3>Suggested next guess</h3>
+        <div id="suggestions" class="suggestions"></div>
+      </div>
+
+      <div id="candidates" class="candidates"></div>
+      <p id="overflow-note" class="overflow-note" hidden></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Word5 is an independent hobby tool and is not affiliated with, endorsed by,
+    or connected to The New York Times or any puzzle publisher.</p>
+  </footer>
+
+  <script src="words.js"></script>
+  <script src="solver.js"></script>
+</body>
+</html>
